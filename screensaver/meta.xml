@@ -1,0 +1,4 @@
+<meta>
+	<script src="render-c.lua" type="client" />
+	<file src="img/dvd.dds"/>
+</meta>
