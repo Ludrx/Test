@@ -1,0 +1,10 @@
+<meta>
+    <info name="TeST" type="script" version="0.1" />
+    <min_mta_version server="1.5.8-9.20957" />
+    <oop>true</oop>
+    
+    <script src="client.lua" type="client" cache="false" />
+    <script src="server.lua" type="server" />
+    <script type="shared" src="shared.lua" cache="false"/>
+    
+</meta>
