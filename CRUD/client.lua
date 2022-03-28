@@ -37,7 +37,7 @@ local function refreshPage( newPage )
     local nextPage = nextPage < 1 and 1 or nextPage -- Если всего страниц 0 фиксим на 1
     
     if nextPage ~= current_page then -- Если это новая страница > обновляем информацию
-        triggerServerEvent('crud[dgs]:getServerLogs', resourceRoot, nextPage)
+        triggerServerEvent('crud:getServerLogs', resourceRoot, nextPage)
     end
 end
 
@@ -165,7 +165,7 @@ local function initDxMenu()
             for i = 1, #tList do -- Кнопки переключения страниц
                 if tList[i] == source and not clickCoolDown then 
                     if tIndexBtn[source] ~= current_page then 
-                        triggerServerEvent('crud[dgs]:getServerLogs', resourceRoot, tIndexBtn[source])
+                        triggerServerEvent('crud:getServerLogs', resourceRoot, tIndexBtn[source])
                     end 
                     return
                 end 
@@ -178,9 +178,9 @@ local function initDxMenu()
                     return 
                 end 
                 if trim(dgsGetText( editBox )) ~= "" then 
-                    triggerServerEvent( 'crud[dgs]:searchColum', resourceRoot, dgsComboBoxGetSelectedItem( Combo ) or 1, trim(dgsGetText( editBox )) )
+                    triggerServerEvent( 'crud:searchColum', resourceRoot, dgsComboBoxGetSelectedItem( Combo ) or 1, trim(dgsGetText( editBox )) )
                 else 
-                    triggerServerEvent('crud[dgs]:getServerLogs', resourceRoot, 1)
+                    triggerServerEvent('crud:getServerLogs', resourceRoot, 1)
                 end 
                 return 
             end 
@@ -219,14 +219,14 @@ function setCRUDVisible( state )
 	end
     if not isElement( mainPanel ) then return end
 	dgsSetVisible( mainPanel, state )
-    triggerLatentServerEvent('crud[dgs]:ClientOpenInterface', resourceRoot, state)
+    triggerLatentServerEvent('crud:ClientOpenInterface', resourceRoot, state)
     showCursor( state )
 end 
 
 local function showDGSCrud( )
     showCrud = not showCrud
     setCRUDVisible( showCrud )
-    triggerServerEvent( 'crud[dgs]:getServerLogs', resourceRoot, current_page )
+    triggerServerEvent( 'crud:getServerLogs', resourceRoot, current_page )
 end 
 
 
@@ -258,8 +258,8 @@ end
 
 
 -- Ответ от сервера с логами
-addEvent('crud[dgs]:sendClientLogs', true)
-addEventHandler('crud[dgs]:sendClientLogs', resourceRoot, 
+addEvent('crud:sendClientLogs', true)
+addEventHandler('crud:sendClientLogs', resourceRoot, 
     function( table, AllPages, selectedPage )
         if not isElement( mainPanel ) then return end 
         if not isElement( tInterface.list ) then return end
@@ -363,11 +363,11 @@ local function initModalWindow( )
                         setErrorMenuVisible( true, 'Вы ничего не поменяли' )
                         return
                     end 
-                    triggerServerEvent( 'crud[dgs]:updateUser', resourceRoot, tNewData, tonumber( idSelectUser ) )
+                    triggerServerEvent( 'crud:updateUser', resourceRoot, tNewData, tonumber( idSelectUser ) )
                     setModalWindowVisible( false )
                     setErrorMenuVisible( false )
                 elseif tModal.status == STATUS_CREATE then
-                    triggerServerEvent( 'crud[dgs]:addNewUser', resourceRoot, tNewData )  
+                    triggerServerEvent( 'crud:addNewUser', resourceRoot, tNewData )  
                     setModalWindowVisible( false )
                     setErrorMenuVisible( false )
                 end 
@@ -377,7 +377,7 @@ local function initModalWindow( )
             setErrorMenuVisible( true, " Вы действительно желаете удалить пользователя?", 
                 function( bool ) 
                     if bool then 
-                        triggerServerEvent( 'crud[dgs]:DeleteUser', resourceRoot, tonumber( idSelectUser ) )
+                        triggerServerEvent( 'crud:DeleteUser', resourceRoot, tonumber( idSelectUser ) )
                         setErrorMenuVisible( false )
                     end 
                 end
@@ -477,8 +477,8 @@ function setErrorMenuVisible( state, text, callback )
     end
 end 
 
-addEvent( "crud[dgs]:setVisibleWarning", true )
-addEventHandler( "crud[dgs]:setVisibleWarning", localPlayer, setErrorMenuVisible )
+addEvent( "crud:setVisibleWarning", true )
+addEventHandler( "crud:setVisibleWarning", localPlayer, setErrorMenuVisible )
 
 
 

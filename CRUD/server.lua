@@ -42,8 +42,8 @@ local function setPlayerOpenStateInterface( state, thePlayer )
     tUserOpenCRUD[ thePlayer ] = state and true or nil
 end 
 
-addEvent('crud[dgs]:ClientOpenInterface', true)
-addEventHandler('crud[dgs]:ClientOpenInterface', resourceRoot , setPlayerOpenStateInterface )
+addEvent('crud:ClientOpenInterface', true)
+addEventHandler('crud:ClientOpenInterface', resourceRoot , setPlayerOpenStateInterface )
 
 
 
@@ -70,7 +70,7 @@ end
 -- Вызыв окна ошибки
 local function sendErrorClient( thePlayer, text )
     if isPlayerOpenInterface( thePlayer ) then
-        triggerClientEvent( thePlayer, "crud[dgs]:setVisibleWarning", thePlayer, true, text )
+        triggerClientEvent( thePlayer, "crud:setVisibleWarning", thePlayer, true, text )
     end 
 end 
 
@@ -94,7 +94,7 @@ local function fillCacheData( queryHandler )
                 tSend[#tSend + 1] = thePlayer
             end 
         end 
-        triggerClientEvent( tSend, 'crud[dgs]:sendClientLogs', resourceRoot, getUsersSelectPage( 1 ), totalPages( tUsersData ), 1 )
+        triggerClientEvent( tSend, 'crud:sendClientLogs', resourceRoot, getUsersSelectPage( 1 ), totalPages( tUsersData ), 1 )
     end 
 end
 
@@ -130,12 +130,19 @@ local function getUserData( page )
     end 
 
     local tData = getUsersSelectPage( page )
-    triggerClientEvent( client, 'crud[dgs]:sendClientLogs', resourceRoot, tData, totalPages( tUsersData ), page )
+    triggerClientEvent( client, 'crud:sendClientLogs', resourceRoot, tData, totalPages( tUsersData ), page )
 end 
 
-addEvent('crud[dgs]:getServerLogs', true)
-addEventHandler('crud[dgs]:getServerLogs', resourceRoot , getUserData)
+addEvent('crud:getServerLogs', true)
+addEventHandler('crud:getServerLogs', resourceRoot , getUserData)
 
+-- Отправка клиенту то что он просил
+local function seachCrud( query, player )
+	local result = dbPoll( query, 0 )
+	if not result then return end
+    if not next( result ) then return end
+    triggerClientEvent( player, 'crud:sendClientLogs', resourceRoot, result, totalPages( result ), 1 )
+end 
 
 --  Поиск пользователя указанного в INPUT ( Столбик, введенная строка)
 function SearchUser( colum, str )
@@ -150,22 +157,25 @@ function SearchUser( colum, str )
     if str == "" then 
         local tDatad = getUsersSelectPage( 1 )
         if #tDatad > 0 then 
-            triggerClientEvent( client, 'crud[dgs]:sendClientLogs', resourceRoot, tDatad, totalPages( tUsersData ), page )
+            triggerClientEvent( client, 'crud:sendClientLogs', resourceRoot, tDatad, totalPages( tUsersData ), page )
         end 
         return 
     end 
     
-    for k, v in pairs( tUsersData ) do 
-        if COLUMN_NAME[colum] and v[COLUMN_NAME[colum]]:find( str ) then -- Если есть такая колонка и информация в ней
-            table.insert( tData, v )   
-        end 
-    end
-    if #tData > 0 then
-        triggerClientEvent( client, 'crud[dgs]:sendClientLogs', resourceRoot, tData, totalPages( tData ), 1 )
-    end 
+    if not COLUMN_NAME[colum] then return end
+    -- fast =)
+    dbQuery( seachCrud, { client }, dbConnection, string.format( "SELECT * FROM task WHERE %s LIKE '%%%s%%'", COLUMN_NAME[colum], str))
+    -- for k, v in pairs( tUsersData ) do 
+    --     if COLUMN_NAME[colum] and v[COLUMN_NAME[colum]]:find( str ) then -- Если есть такая колонка и информация в ней
+    --         table.insert( tData, v )   
+    --     end 
+    -- end
+    -- if #tData > 0 then
+    --     triggerClientEvent( client, 'crud:sendClientLogs', resourceRoot, tData, totalPages( tData ), 1 )
+    -- end 
 end
-addEvent( "crud[dgs]:searchColum", true )
-addEventHandler( "crud[dgs]:searchColum", resourceRoot , SearchUser )
+addEvent( "crud:searchColum", true )
+addEventHandler( "crud:searchColum", resourceRoot , SearchUser )
 
 
 
@@ -195,8 +205,8 @@ local function addNewUser( data )
     refreshServerData( )
 end 
 
-addEvent( "crud[dgs]:addNewUser", true)
-addEventHandler( "crud[dgs]:addNewUser", resourceRoot , addNewUser )
+addEvent( "crud:addNewUser", true)
+addEventHandler( "crud:addNewUser", resourceRoot , addNewUser )
 
 
 ----------------------------------------------
@@ -230,8 +240,8 @@ local function updateUserDB( data, accID )
         end 
     end 
 end 
-addEvent( "crud[dgs]:updateUser", true)
-addEventHandler( "crud[dgs]:updateUser", resourceRoot , updateUserDB )
+addEvent( "crud:updateUser", true)
+addEventHandler( "crud:updateUser", resourceRoot , updateUserDB )
 
 ----------------------------------------------
 -- удаление пользователя из БД
@@ -256,8 +266,8 @@ local function deleteUserBD( userID )
     end
     sendErrorClient( client, "Нет указанного пользователя для удаления")
 end
-addEvent( "crud[dgs]:DeleteUser", true)
-addEventHandler( "crud[dgs]:DeleteUser", resourceRoot , deleteUserBD )
+addEvent( "crud:DeleteUser", true)
+addEventHandler( "crud:DeleteUser", resourceRoot , deleteUserBD )
 
 
 
